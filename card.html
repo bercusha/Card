@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Банковская карта</title>
+    <style>
+        .container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .form-container {
+            margin-right: 20px;
+        }
+
+        .card-thumbnail {
+            position: relative;
+            width: 400px;
+            height: 240px;
+            border: 1px solid #000;
+            margin-top: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .card-data {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Введите данные Вашей банковской карты</h1>
+    <div class="container">
+        <div class="form-container">
+            <form id="cardForm">
+                <label for="bankName">Название банка:</label>
+                <input type="text" id="bankName" required><br><br>
+
+                <label for="paymentSystem">Тип платежной системы:</label>
+                <input type="text" id="paymentSystem" required><br><br>
+
+                <label for="cardNumber">Номер карты:</label>
+                <input type="text" id="cardNumber" pattern="[0-9]{16}" required><br><br>
+
+                <label for="cardHolderName">Имя держателя карты:</label>
+                <input type="text" id="cardHolderName" required><br><br>
+
+                <label for="expirationDate">Месяц и год окончания карты:</label>
+                <input type="text" id="expirationDate" pattern="(0[1-9]|1[0-2])\/[0-9]{2}" placeholder="мм/гг" required><br><br>
+
+                <input type="submit" value="Отправить">
+            </form>
+        </div>
+
+        <div>
+            <div id="cardThumbnail" class="card-thumbnail">
+                <div id="cardData" class="card-data"></div>
+            </div>
+        </div>
+    </div>
+
+    <table id="cardTable">
+        <thead>
+            <tr>
+                <th>Название банка</th>
+                <th>Тип платежной системы</th>
+                <th>Номер карты</th>
+                <th>Имя держателя карты</th>
+                <th>Месяц и год окончания карты</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('cardForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var bankName = document.getElementById('bankName').value;
+            var paymentSystem = document.getElementById('paymentSystem').value;
+            var cardNumber = document.getElementById('cardNumber').value;
+            var cardHolderName = document.getElementById('cardHolderName').value;
+            var expirationDate = document.getElementById('expirationDate').value;
+
+            var cardTable = document.getElementById('cardTable').getElementsByTagName('tbody')[0];
+            var newRow = cardTable.insertRow(cardTable.rows.length);
+
+            var bankCell = newRow.insertCell(0);
+            var paymentSystemCell = newRow.insertCell(1);
+            var cardNumberCell = newRow.insertCell(2);
+            var cardHolderNameCell = newRow.insertCell(3);
+            var expirationDateCell = newRow.insertCell(4);
+
+            bankCell.innerHTML = bankName;
+            paymentSystemCell.innerHTML = paymentSystem;
+            cardNumberCell.innerHTML = cardNumber;
+            cardHolderNameCell.innerHTML = cardHolderName;
+            expirationDateCell.innerHTML = expirationDate;
+
+            updateCardThumbnail(); // Обновляем миниатюру карты после отправки формы
+            clearCardForm(); // Очищаем форму
+        });
+
+        document.getElementById('cardNumber').addEventListener('input', updateCardData);
+        document.getElementById('cardHolderName').addEventListener('input', updateCardData);
+        document.getElementById('expirationDate').addEventListener('input', updateCardData);
+
+        function updateCardData() {
+            var cardNumber = document.getElementById('cardNumber').value;
+            var cardHolderName = document.getElementById('cardHolderName').value;
+            var expirationDate = document.getElementById('expirationDate').value;
+
+            var cardData = document.getElementById('cardData');
+            cardData.innerHTML = '';
+
+            if (cardNumber && cardHolderName && expirationDate) {
+                cardData.innerHTML = cardNumber + '<br>' + cardHolderName + '<br>' + expirationDate;
+            }
+        }
+
+        document.getElementById('bankName').addEventListener('input', updateCardThumbnail);
+        document.getElementById('paymentSystem').addEventListener('input', updateCardThumbnail);
+
+        function updateCardThumbnail() {
+            var bankName = document.getElementById('bankName').value;
+            var paymentSystem = document.getElementById('paymentSystem').value;
+
+            var cardThumbnail = document.getElementById('cardThumbnail');
+            cardThumbnail.style.backgroundImage = '';
+
+            if (bankName && paymentSystem) {
+                var logoUrl = getLogoUrl(bankName, paymentSystem);
+                if (logoUrl) {
+                    cardThumbnail.style.backgroundImage = 'url(' + logoUrl + ')';
+                }
+            }
+        }
+
+        function clearCardForm() {
+            document.getElementById('cardForm').reset(); // Очищаем форму
+
+            var cardThumbnail = document.getElementById('cardThumbnail');
+            cardThumbnail.style.backgroundImage = '';
+
+            var cardData = document.getElementById('cardData');
+            cardData.innerHTML = '';
+        }
+
+        function getLogoUrl(bankName, paymentSystem) {
+            if (paymentSystem.toLowerCase() === 'visa') {
+                return 'visa_logo.png';
+            } else if (paymentSystem.toLowerCase() === 'mastercard') {
+                return 'mastercard_logo.png';
+            }
+            return ''; // Вернуть пустую строку, если логотип не найден для данной платежной системы
+        }
+    </script>
+</body>
+</html>
